@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>FLOW WORKSPACE — ICH</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#121d2e;--panel2:#172438;--line:#26364d;--text:#edf4ff;--muted:#9aabc1;--blue:#56a7ff;--orange:#ff9b52;--green:#52d6a0}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 0%,#1b3551 0,transparent 32%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+.wrap{max-width:1100px;margin:auto;padding:24px 18px 60px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:20px}
+.brand{display:flex;align-items:center;gap:12px}.mark{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--orange),var(--blue));display:grid;place-items:center;color:#07111e;font-weight:900;font-size:22px}.eyebrow{color:var(--blue);font-size:11px;font-weight:800;letter-spacing:.16em}.brand h1{margin:1px 0;font-size:22px;letter-spacing:.02em}.sub{color:var(--muted);font-size:13px}
+.pill{border:1px solid #315273;background:#142b43;color:#b9dcff;border-radius:999px;padding:7px 11px;font-size:12px;font-weight:700}
+h2{font-size:17px;margin:0 0 14px}h3{font-size:15px;margin:0 0 6px}.section{margin-top:26px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.card{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:17px;padding:17px;min-width:0}.metric{font-size:28px;font-weight:800;margin-top:4px}.muted{color:var(--muted);font-size:13px}.bar{height:7px;background:#25364c;border-radius:9px;overflow:hidden;margin-top:12px}.bar span{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:9px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}.tab{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:10px;padding:9px 13px;font:inherit;font-size:13px}.tab.active{border-color:var(--blue);color:var(--text);background:#17304b}
+.task{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-top:1px solid var(--line)}.task:first-of-type{border-top:0}.task input{accent-color:var(--green);width:18px;height:18px;margin:3px 0 0;flex:none}.task-main{flex:1;min-width:0}.task-title{font-weight:650}.task small{display:block;color:var(--muted);margin-top:3px}.state{font-size:11px;border-radius:999px;padding:4px 8px;white-space:nowrap;border:1px solid var(--line);color:#c5d4e7}.state.valid{color:var(--green);border-color:#27634f}.state.build{color:var(--orange);border-color:#765032}
+.notice{border:1px solid #765032;background:#2a211b;color:#f6d0ad;border-radius:13px;padding:12px 14px;font-size:13px}.columns{display:grid;grid-template-columns:1.3fr .7fr;gap:14px}.decision{padding:12px 0;border-top:1px solid var(--line)}.decision:first-of-type{border-top:0}.decision strong{display:block}.decision span{font-size:13px;color:var(--muted)}
+footer{margin-top:30px;border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:12px}
+@media(max-width:760px){.grid{grid-template-columns:1fr 1fr}.columns{grid-template-columns:1fr}.wrap{padding:18px 13px 40px}}
+@media(max-width:430px){.grid{grid-template-columns:1fr}.task{flex-wrap:wrap}.state{margin-left:30px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+ <div class="brand"><div class="mark">F</div><div><div class="eyebrow">ICH STUDIO · PRIVATE PROJECT SPACE</div><h1>FLOW WORKSPACE</h1><div class="sub">Organizăm. Construim. Verificăm.</div></div></div>
+ <span class="pill">PROTOTIP · SINCRONIZARE NEACTIVĂ</span>
+</header>
+<section class="section">
+ <div class="notice"><strong>Notă:</strong> aceasta este prima interfață de lucru. Bifele sunt momentan locale în browserul acestui dispozitiv. Nu sunt încă sincronizate cu GitHub și nu pot fi citite automat din altă sesiune.</div>
+</section>
+<section class="section">
+ <h2>Privire de ansamblu</h2>
+ <div class="grid">
+  <article class="card"><div class="muted">Sarcini urmărite</div><div class="metric" id="total">8</div><div class="muted">în lista inițială</div></article>
+  <article class="card"><div class="muted">Bifate local</div><div class="metric" id="done">0</div><div class="muted">pe acest dispozitiv</div></article>
+  <article class="card"><div class="muted">Progres local</div><div class="metric" id="percent">0%</div><div class="bar"><span id="progress"></span></div></article>
+ </div>
+</section>
+<section class="section">
+ <h2>Plan de lucru</h2>
+ <div class="tabs" role="tablist">
+  <button class="tab active" data-filter="all">Toate</button><button class="tab" data-filter="free">Free</button><button class="tab" data-filter="pro">Pro</button><button class="tab" data-filter="quality">Calitate & testare</button>
+ </div>
+ <article class="card" id="tasks">
+  <div class="task" data-group="free"><input type="checkbox" data-id="free-release"><div class="task-main"><div class="task-title">Confirmarea etapei de evaluare Google Play</div><small>Separăm închiderea testului de aprobarea publicării.</small></div><span class="state valid">Etapă raportată</span></div>
+  <div class="task" data-group="free"><input type="checkbox" data-id="time-format"><div class="task-main"><div class="task-title">Comutator format oră 24h / 12h AM/PM</div><small>14:30 ↔ 2:30 PM; preferință persistentă, fără schimbarea orelor reale.</small></div><span class="state">De făcut</span></div>
+  <div class="task" data-group="free"><input type="checkbox" data-id="calendar-label"><div class="task-main"><div class="task-title">Denumirea secțiunii „Calendar”</div><small>Schimbare de etichetă; funcționalitatea configurării schimburilor rămâne.</small></div><span class="state">De făcut</span></div>
+  <div class="task" data-group="quality"><input type="checkbox" data-id="phase2b"><div class="task-main"><div class="task-title">Faza 2B — continuarea motorului de conflicte</div><small>Clarificăm domeniul și criteriile înainte de implementare.</small></div><span class="state build">În planificare</span></div>
+  <div class="task" data-group="quality"><input type="checkbox" data-id="routine-disabled"><div class="task-main"><div class="task-title">Claritate când Rutina este oprită</div><small>Stare vizuală și mesaj explicativ pentru schimburi.</small></div><span class="state">De făcut</span></div>
+  <div class="task" data-group="quality"><input type="checkbox" data-id="save-clarity"><div class="task-main"><div class="task-title">Clarificarea salvării modificărilor</div><small>Utilizatorul trebuie să distingă selecțiile de programul salvat.</small></div><span class="state">De făcut</span></div>
+  <div class="task" data-group="quality"><input type="checkbox" data-id="conflict-warning"><div class="task-main"><div class="task-title">Avertizare de conflict vizibilă înainte de salvare</div><small>Nu blocăm automat activitățile simultane; explicăm conflictul.</small></div><span class="state">De făcut</span></div>
+  <div class="task" data-group="pro"><input type="checkbox" data-id="pro-scope"><div class="task-main"><div class="task-title">Definirea domeniului Pro</div><small>Stabilim funcțiile după feedback real și fără a presupune decizii finale.</small></div><span class="state">De definit</span></div>
+ </article>
+</section>
+<section class="section columns">
+ <article class="card"><h2>Jurnal de decizii</h2>
+  <div class="decision"><strong>FLOW sugerează, utilizatorul decide.</strong><span>Regulă de produs: fără mutări sau reprogramări automate.</span></div>
+  <div class="decision"><strong>Construit nu înseamnă Validat.</strong><span>Validarea cere test real și dovezi.</span></div>
+  <div class="decision"><strong>Free înainte de extinderea Pro.</strong><span>Observăm utilizarea și feedbackul înainte de a fixa prioritățile comerciale.</span></div>
+ </article>
+ <article class="card"><h2>Reguli de colaborare</h2>
+  <p class="muted">Lucrăm în pași mici. Verificăm înainte de modificări. Păstrăm costurile sub control.</p>
+  <p class="muted">Site-ul public rămâne separat de acest spațiu privat.</p>
+  <p class="muted">Nu punem token-uri sau parole în codul paginii.</p>
+ </article>
+</section>
+<footer>FLOW by ICH · Workspace privat · Prima versiune de interfață · Datele nu sunt încă sincronizate</footer>
+</div>
+<script>
+const boxes=[...document.querySelectorAll('input[type="checkbox"][data-id]')];
+const key='flow-workspace-prototype-v1';
+try{const saved=JSON.parse(localStorage.getItem(key)||'{}');boxes.forEach(b=>b.checked=!!saved[b.dataset.id]);}catch(e){}
+function refresh(){const done=boxes.filter(b=>b.checked).length,total=boxes.length,pct=Math.round(done/total*100);document.getElementById('total').textContent=total;document.getElementById('done').textContent=done;document.getElementById('percent').textContent=pct+'%';document.getElementById('progress').style.width=pct+'%';}
+boxes.forEach(b=>b.addEventListener('change',()=>{const state={};boxes.forEach(x=>state[x.dataset.id]=x.checked);try{localStorage.setItem(key,JSON.stringify(state));}catch(e){}refresh();}));
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));document.querySelectorAll('.task').forEach(row=>row.hidden=t.dataset.filter!=='all'&&row.dataset.group!==t.dataset.filter);}));
+refresh();
+</script>
+</body>
+</html>
