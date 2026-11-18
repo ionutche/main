@@ -15,7 +15,7 @@ h2{font-size:17px;margin:0 0 14px}h3{font-size:15px;margin:0 0 6px}.section{marg
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}.tab{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:10px;padding:9px 13px;font:inherit;font-size:13px}.tab.active{border-color:var(--blue);color:var(--text);background:#17304b}
 .task{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-top:1px solid var(--line)}.task:first-of-type{border-top:0}.task input{accent-color:var(--green);width:18px;height:18px;margin:3px 0 0;flex:none}.task-main{flex:1;min-width:0}.task-title{font-weight:650}.task small{display:block;color:var(--muted);margin-top:3px}.state{font-size:11px;border-radius:999px;padding:4px 8px;white-space:nowrap;border:1px solid var(--line);color:#c5d4e7}.state.valid{color:var(--green);border-color:#27634f}.state.build{color:var(--orange);border-color:#765032}
 .notice{border:1px solid #765032;background:#2a211b;color:#f6d0ad;border-radius:13px;padding:12px 14px;font-size:13px}.columns{display:grid;grid-template-columns:1.3fr .7fr;gap:14px}.decision{padding:12px 0;border-top:1px solid var(--line)}.decision:first-of-type{border-top:0}.decision strong{display:block}.decision span{font-size:13px;color:var(--muted)}
-footer{margin-top:30px;border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:12px}
+footer{margin-top:30px;border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:12px}\n.authrow{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.authrow input{flex:1;min-width:180px;background:#0b1524;border:1px solid var(--line);border-radius:10px;padding:11px 12px;color:var(--text);font:inherit}.action{border:1px solid #315273;background:#17304b;color:var(--text);border-radius:10px;padding:10px 14px;font:inherit;cursor:pointer}.action:disabled{opacity:.55;cursor:wait}.syncstatus{font-size:12px;color:var(--muted);margin-top:9px}.syncstatus.ok{color:var(--green)}.syncstatus.err{color:#ffad91}
 @media(max-width:760px){.grid{grid-template-columns:1fr 1fr}.columns{grid-template-columns:1fr}.wrap{padding:18px 13px 40px}}
 @media(max-width:430px){.grid{grid-template-columns:1fr}.task{flex-wrap:wrap}.state{margin-left:30px}}
 </style>
@@ -24,17 +24,17 @@ footer{margin-top:30px;border-top:1px solid var(--line);padding-top:16px;color:v
 <div class="wrap">
 <header class="top">
  <div class="brand"><div class="mark">F</div><div><div class="eyebrow">ICH STUDIO · PRIVATE PROJECT SPACE</div><h1>FLOW WORKSPACE</h1><div class="sub">Organizăm. Construim. Verificăm.</div></div></div>
- <span class="pill">PROTOTIP · SINCRONIZARE NEACTIVĂ</span>
+ <span class="pill" id="connection-pill">SINCRONIZARE · DE AUTENTIFICAT</span>
 </header>
 <section class="section">
- <div class="notice"><strong>Notă:</strong> aceasta este prima interfață de lucru. Bifele sunt momentan locale în browserul acestui dispozitiv. Nu sunt încă sincronizate cu GitHub și nu pot fi citite automat din altă sesiune.</div>
+ <div class="card"><h2>Conectare sincronizare</h2><p class="muted">Introdu parola configurată în Cloudflare. După autentificare, starea sarcinilor se încarcă din baza comună și se sincronizează între dispozitive.</p><div class="authrow"><input id="workspace-password" type="password" autocomplete="current-password" placeholder="Parola workspace"><button class="action" id="login-button" type="button">Conectare</button><button class="action" id="logout-button" type="button" hidden>Deconectare</button></div><div class="syncstatus" id="sync-status" role="status">Neautentificat. Datele locale rămân păstrate pe acest dispozitiv.</div></div>
 </section>
 <section class="section">
  <h2>Privire de ansamblu</h2>
  <div class="grid">
   <article class="card"><div class="muted">Sarcini urmărite</div><div class="metric" id="total">8</div><div class="muted">în lista inițială</div></article>
-  <article class="card"><div class="muted">Bifate local</div><div class="metric" id="done">0</div><div class="muted">pe acest dispozitiv</div></article>
-  <article class="card"><div class="muted">Progres local</div><div class="metric" id="percent">0%</div><div class="bar"><span id="progress"></span></div></article>
+  <article class="card"><div class="muted">Sarcini bifate</div><div class="metric" id="done">0</div><div class="muted">stare sincronizată după conectare</div></article>
+  <article class="card"><div class="muted">Progres total</div><div class="metric" id="percent">0%</div><div class="bar"><span id="progress"></span></div></article>
  </div>
 </section>
 <section class="section">
@@ -65,16 +65,28 @@ footer{margin-top:30px;border-top:1px solid var(--line);padding-top:16px;color:v
   <p class="muted">Nu punem token-uri sau parole în codul paginii.</p>
  </article>
 </section>
-<footer>FLOW by ICH · Workspace privat · Prima versiune de interfață · Datele nu sunt încă sincronizate</footer>
+<footer>FLOW by ICH · Workspace · Sincronizare Cloudflare D1 · Nu introduce date sensibile în sarcini.</footer>
 </div>
 <script>
+const API='https://flow-workspace-api.ionutster.workers.dev';
 const boxes=[...document.querySelectorAll('input[type="checkbox"][data-id]')];
-const key='flow-workspace-prototype-v1';
-try{const saved=JSON.parse(localStorage.getItem(key)||'{}');boxes.forEach(b=>b.checked=!!saved[b.dataset.id]);}catch(e){}
+const key='flow-workspace-prototype-v1', tokenKey='flow-workspace-session-v1';
+let token=sessionStorage.getItem(tokenKey)||'', syncing=false;
+const statusEl=document.getElementById('sync-status'), pill=document.getElementById('connection-pill');
+function setStatus(message,type=''){statusEl.textContent=message;statusEl.className='syncstatus '+type;}
+function currentStates(){const state={};boxes.forEach(b=>state[b.dataset.id]=b.checked);return state;}
+function applyStates(state){boxes.forEach(b=>{if(Object.prototype.hasOwnProperty.call(state,b.dataset.id))b.checked=!!state[b.dataset.id];});refresh();saveLocal();}
+function saveLocal(){try{localStorage.setItem(key,JSON.stringify(currentStates()));}catch(e){}}
 function refresh(){const done=boxes.filter(b=>b.checked).length,total=boxes.length,pct=Math.round(done/total*100);document.getElementById('total').textContent=total;document.getElementById('done').textContent=done;document.getElementById('percent').textContent=pct+'%';document.getElementById('progress').style.width=pct+'%';}
-boxes.forEach(b=>b.addEventListener('change',()=>{const state={};boxes.forEach(x=>state[x.dataset.id]=x.checked);try{localStorage.setItem(key,JSON.stringify(state));}catch(e){}refresh();}));
+function setConnected(on){document.getElementById('login-button').hidden=on;document.getElementById('logout-button').hidden=!on;document.getElementById('workspace-password').hidden=on;pill.textContent=on?'SINCRONIZARE · CONECTAT':'SINCRONIZARE · DE AUTENTIFICAT';}
+async function api(path,options={}){const headers={'Content-Type':'application/json',...(options.headers||{})};if(token)headers.Authorization='Bearer '+token;const response=await fetch(API+path,{...options,headers});let data={};try{data=await response.json();}catch{}if(!response.ok)throw new Error(data.error||('Eroare HTTP '+response.status));return data;}
+async function syncNow(){if(!token||syncing)return;syncing=true;try{const remote=await api('/api/tasks');if(Object.keys(remote.states||{}).length===0){const local=JSON.parse(localStorage.getItem(key)||'{}');const saved=await api('/api/tasks',{method:'PUT',body:JSON.stringify({states:local})});applyStates(saved.states||local);}else{applyStates(remote.states);}setStatus('Conectat. Modificările sunt sincronizate cu baza comună.','ok');}catch(e){if(String(e.message).includes('Unauthorized')){token='';sessionStorage.removeItem(tokenKey);setConnected(false);}setStatus('Sincronizarea a eșuat: '+e.message,'err');}finally{syncing=false;}}
+document.getElementById('login-button').addEventListener('click',async()=>{const password=document.getElementById('workspace-password').value;if(!password){setStatus('Introdu parola workspace.','err');return;}const button=document.getElementById('login-button');button.disabled=true;try{const result=await api('/api/login',{method:'POST',headers:{},body:JSON.stringify({password})});token=result.token;sessionStorage.setItem(tokenKey,token);document.getElementById('workspace-password').value='';setConnected(true);await syncNow();}catch(e){setStatus('Autentificarea a eșuat: '+e.message,'err');}finally{button.disabled=false;}});
+document.getElementById('logout-button').addEventListener('click',()=>{token='';sessionStorage.removeItem(tokenKey);setConnected(false);setStatus('Deconectat. Datele locale rămân pe acest dispozitiv.');});
+try{const saved=JSON.parse(localStorage.getItem(key)||'{}');applyStates(saved);}catch(e){refresh();}
+boxes.forEach(b=>b.addEventListener('change',async()=>{saveLocal();refresh();if(!token){setStatus('Salvat local. Conectează-te pentru sincronizare între dispozitive.');return;}try{const result=await api('/api/tasks',{method:'PUT',body:JSON.stringify({states:currentStates()})});applyStates(result.states||currentStates());setStatus('Salvat și sincronizat.','ok');}catch(e){setStatus('Salvat local; sincronizarea a eșuat: '+e.message,'err');}}));
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));document.querySelectorAll('.task').forEach(row=>row.hidden=t.dataset.filter!=='all'&&row.dataset.group!==t.dataset.filter);}));
-refresh();
+setConnected(!!token);if(token)syncNow();else refresh();
 </script>
 </body>
 </html>
